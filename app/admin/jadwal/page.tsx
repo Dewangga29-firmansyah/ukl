@@ -110,48 +110,45 @@ export default function Page() {
   }
 
   function edit(
-    item: ApiJadwal,
-  ) {
-    setEditId(item.id)
+  item: ApiJadwal,
+) {
+  setEditId(item.id)
 
-    setForm({
-      asal:
-        item.asal ?? '',
+  setForm({
+    asal:
+      item.asal ?? '',
 
-      tujuan:
-        item.tujuan ?? '',
+    tujuan:
+      item.tujuan ?? '',
 
-      tanggalBerangkat:
-        item.tanggalBerangkat
-          ? item.tanggalBerangkat.slice(
-            0,
-            16,
-          )
-          : '',
+    tanggalBerangkat:
+      item.tanggalBerangkat
+        ?.slice(
+          0,
+          16,
+        ) ?? '',
 
-      tanggalTiba:
-        item.tanggalTiba
-          ? item.tanggalTiba.slice(
-            0,
-            16,
-          )
-          : '',
+    tanggalTiba:
+      item.tanggalTiba
+        ?.slice(
+          0,
+          16,
+        ) ?? '',
 
-      harga:
-        Number(
-          item.harga,
-        ) || 0,
+    harga:
+      Number(
+        item.harga,
+      ) || 0,
 
-      keretaId:
-        (
-          item as any
-        ).keretaId ||
-        item.kereta?.id ||
-        '',
-    })
+    keretaId:
+      (
+        item as any
+      ).keretaId ??
+      '',
+  })
 
-    setShow(true)
-  }
+  setShow(true)
+}
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
