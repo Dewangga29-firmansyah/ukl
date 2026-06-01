@@ -116,28 +116,26 @@ export default function Page() {
 
     setForm({
       asal:
-        item.asal ??
-        '',
+        item.asal ?? '',
 
       tujuan:
-        item.tujuan ??
-        '',
+        item.tujuan ?? '',
 
       tanggalBerangkat:
-        item
-          .tanggalBerangkat
-          ?.slice(
+        item.tanggalBerangkat
+          ? item.tanggalBerangkat.slice(
             0,
             16,
-          ) ?? '',
+          )
+          : '',
 
       tanggalTiba:
-        item
-          .tanggalTiba
-          ?.slice(
+        item.tanggalTiba
+          ? item.tanggalTiba.slice(
             0,
             16,
-          ) ?? '',
+          )
+          : '',
 
       harga:
         Number(
@@ -145,8 +143,10 @@ export default function Page() {
         ) || 0,
 
       keretaId:
-        item
-          .keretaId ??
+        (
+          item as any
+        ).keretaId ||
+        item.kereta?.id ||
         '',
     })
 
