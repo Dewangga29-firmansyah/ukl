@@ -39,6 +39,7 @@ export type AuthResponse = {
 }
 
 export type ApiKereta = {
+  gerbong: never[]
   id: string
   nama: string
   deskripsi: string
