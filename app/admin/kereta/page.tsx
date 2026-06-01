@@ -1,245 +1,321 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import { Plus, Train } from "lucide-react";
-import AdminShell from "../components/AdminShell";
-import { ApiKereta, getKereta, createKereta} from "../../lib/api";
+import { useEffect, useState } from 'react'
+import { Plus, Train, X } from 'lucide-react'
 
-function getTrainName(train: ApiKereta) {
-  return train.namaKereta || train.nama_kereta || train.nama || train.name || "-";
-}
+import AdminShell from '../components/AdminShell'
 
-function getTrainCode(train: ApiKereta) {
-  return train.kodeKereta || train.kode_kereta || train.kode || train.id;
-}
-
-function getTrainClass(train: ApiKereta) {
-  return train.kelas || train.className || "-";
-}
+import {
+  ApiKereta,
+  createKereta,
+  getKereta,
+} from '../../lib/api'
 
 export default function AdminKeretaPage() {
-  const [trains, setTrains] = useState<ApiKereta[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [trains, setTrains] =
+    useState<ApiKereta[]>([])
 
-  // Modal Tambah Kereta
-  const [showModal, setShowModal] = useState(false);
-  const [namaKereta, setNamaKereta] = useState("");
-  const [kodeKereta, setKodeKereta] = useState("");
-  const [kelas, setKelas] = useState("");
+  const [loading, setLoading] =
+    useState(true)
+
+  const [error, setError] =
+    useState('')
+
+  const [showModal, setShowModal] =
+    useState(false)
+
+  const [nama, setNama] =
+    useState('')
+
+  async function loadData() {
+    try {
+      setLoading(true)
+
+      const data =
+        await getKereta()
+
+      setTrains(data)
+
+      setError('')
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Gagal memuat data'
+      )
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    let mounted = true;
+    loadData()
+  }, [])
 
-    async function loadTrains() {
-      try {
-        setLoading(true);
-        const data = await getKereta();
-
-        if (mounted) {
-          setTrains(data);
-          setError(null);
-        }
-      } catch (err) {
-        if (mounted) {
-          setError(
-            err instanceof Error
-              ? err.message
-              : "Gagal mengambil data kereta."
-          );
-        }
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    }
-
-    loadTrains();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  async function handleTambahKereta() {
+  async function handleCreate() {
     try {
-      if (!namaKereta || !kodeKereta || !kelas) {
-        alert("Semua field harus diisi.");
-        return;
+      if (!nama.trim()) {
+        alert(
+          'Nama kereta wajib diisi'
+        )
+
+        return
       }
 
-      const response = await fetch("https://trainsystem-production.up.railway.app/api", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          namaKereta,
-          kodeKereta,
-          kelas,
-        }),
-      });
+      const created =
+        await createKereta({
+          nama,
+        })
 
-      if (!response.ok) {
-        throw new Error("Gagal menambah data kereta");
-      }
+      setTrains((prev) => [
+        created,
+        ...prev,
+      ])
 
-      const newTrain = await response.json();
+      setNama('')
 
-      setTrains((prev) => [...prev, newTrain]);
+      setShowModal(false)
 
-      setNamaKereta("");
-      setKodeKereta("");
-      setKelas("");
-      setShowModal(false);
     } catch (err) {
-      console.error(err);
-      alert("Gagal menambah kereta.");
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'Gagal tambah kereta'
+      )
     }
   }
 
   return (
-    <AdminShell title="Data Kereta">
+    <AdminShell title="Kereta">
+
       <div className="flex items-center justify-between">
+
         <div>
-          <h1 className="text-[38px] font-extrabold leading-tight text-white">
+
+          <h1 className="text-4xl font-black text-white">
             Data Kereta
           </h1>
-          <p className="mt-3 text-[21px] text-[#8fb5df]">
-            Kelola armada kereta yang tersedia.
+
+          <p className="mt-2 text-[#88a8d6]">
+            Kelola data kereta
           </p>
+
         </div>
 
         <button
-          onClick={() => setShowModal(true)}
-          className="flex h-12 items-center gap-3 rounded-[16px] bg-[#15b8d2] px-5 font-bold text-black transition hover:bg-[#27cce6]"
+          onClick={() =>
+            setShowModal(true)
+          }
+          className="
+          flex
+          items-center
+          gap-2
+          rounded-2xl
+          bg-cyan-400
+          px-5
+          py-3
+          font-bold
+          text-black
+        "
         >
-          <Plus className="h-5 w-5" />
-          Tambah Kereta
+          <Plus size={18} />
+
+          Tambah
         </button>
+
       </div>
 
-      {error ? (
-        <div className="mt-6 rounded-[18px] border border-red-500/30 bg-red-500/10 px-5 py-4 text-red-100">
+      {error && (
+        <div className="mt-8 rounded-2xl bg-red-500/10 p-5 text-red-200">
           {error}
         </div>
-      ) : null}
+      )}
 
-      <div className="mt-10 overflow-hidden rounded-[18px] border border-[#24344f] bg-[#121b2d]">
+      <div
+        className="
+        mt-8
+        overflow-hidden
+        rounded-3xl
+        border
+        border-[#233554]
+        bg-[#101828]
+      "
+      >
+
         <table className="w-full">
-          <thead className="border-b border-[#24344f] text-left text-[#8fb5df]">
-            <tr>
-              <th className="px-6 py-4 font-semibold">Kereta</th>
-              <th className="px-6 py-4 font-semibold">Kode</th>
-              <th className="px-6 py-4 font-semibold">Kelas</th>
-              <th className="px-6 py-4 font-semibold">Status</th>
+
+          <thead>
+
+            <tr className="border-b border-[#233554]">
+
+              <th className="px-6 py-5 text-left text-[#89a9d5]">
+                Kereta
+              </th>
+
             </tr>
+
           </thead>
 
           <tbody>
+
             {loading ? (
+
               <tr>
-                <td className="px-6 py-8 text-[#8fb5df]" colSpan={4}>
-                  Memuat data kereta...
+
+                <td className="px-6 py-10 text-[#89a9d5]">
+                  Memuat data...
                 </td>
+
               </tr>
+
             ) : trains.length === 0 ? (
+
               <tr>
-                <td className="px-6 py-8 text-[#8fb5df]" colSpan={4}>
-                  Belum ada data kereta dari backend.
+
+                <td className="px-6 py-10 text-[#89a9d5]">
+                  Belum ada data
                 </td>
+
               </tr>
+
             ) : (
-              trains.map((train) => (
-                <tr
-                  key={train.id}
-                  className="border-b border-[#1d2b44] last:border-0"
-                >
-                  <td className="px-6 py-5">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-[#07304a] text-[#06d5f2]">
-                        <Train className="h-5 w-5" />
+
+              trains.map(
+                (train) => (
+
+                  <tr
+                    key={train.id}
+                    className="
+                    border-b
+                    border-[#18263f]
+                    last:border-0
+                  "
+                  >
+
+                    <td className="px-6 py-5">
+
+                      <div className="flex items-center gap-4">
+
+                        <div
+                          className="
+                          flex
+                          h-12
+                          w-12
+                          items-center
+                          justify-center
+                          rounded-2xl
+                          bg-cyan-500/10
+                        "
+                        >
+
+                          <Train
+                            className="text-cyan-300"
+                          />
+
+                        </div>
+
+                        <div>
+
+                          <p className="font-bold text-white">
+                            {train.nama}
+                          </p>
+
+                          <p className="text-sm text-[#89a9d5]">
+                            {train.id}
+                          </p>
+
+                        </div>
+
                       </div>
 
-                      <span className="font-semibold text-white">
-                        {getTrainName(train)}
-                      </span>
-                    </div>
-                  </td>
+                    </td>
 
-                  <td className="px-6 py-5 text-[#c9d7ee]">
-                    {getTrainCode(train)}
-                  </td>
+                  </tr>
 
-                  <td className="px-6 py-5 text-[#c9d7ee]">
-                    {getTrainClass(train)}
-                  </td>
+                )
+              )
 
-                  <td className="px-6 py-5">
-                    <span className="rounded-full bg-[#07304a] px-3 py-1 text-sm font-semibold text-[#06d5f2]">
-                      {train.status || "Aktif"}
-                    </span>
-                  </td>
-                </tr>
-              ))
             )}
+
           </tbody>
+
         </table>
+
       </div>
 
-      {/* Modal Tambah Kereta */}
       {showModal && (
+
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="w-full max-w-md rounded-2xl bg-[#121b2d] p-6 shadow-xl">
-            <h2 className="mb-6 text-2xl font-bold text-white">
-              Tambah Kereta
-            </h2>
 
-            <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Nama Kereta"
-                value={namaKereta}
-                onChange={(e) => setNamaKereta(e.target.value)}
-                className="w-full rounded-lg border border-[#24344f] bg-[#0f172a] px-4 py-3 text-white outline-none"
-              />
+          <div
+            className="
+            w-full
+            max-w-lg
+            rounded-3xl
+            bg-[#101828]
+            p-8
+          "
+          >
 
-              <input
-                type="text"
-                placeholder="Kode Kereta"
-                value={kodeKereta}
-                onChange={(e) => setKodeKereta(e.target.value)}
-                className="w-full rounded-lg border border-[#24344f] bg-[#0f172a] px-4 py-3 text-white outline-none"
-              />
+            <div className="mb-6 flex items-center justify-between">
 
-              <input
-                type="text"
-                placeholder="Kelas"
-                value={kelas}
-                onChange={(e) => setKelas(e.target.value)}
-                className="w-full rounded-lg border border-[#24344f] bg-[#0f172a] px-4 py-3 text-white outline-none"
-              />
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="rounded-lg bg-slate-600 px-4 py-2 text-white"
-              >
-                Batal
-              </button>
+              <h2 className="text-2xl font-bold text-white">
+                Tambah Kereta
+              </h2>
 
               <button
-                onClick={handleTambahKereta}
-                className="rounded-lg bg-[#15b8d2] px-4 py-2 font-semibold text-black"
+                onClick={() =>
+                  setShowModal(false)
+                }
               >
-                Simpan
+                <X className="text-white" />
               </button>
+
             </div>
+
+            <input
+              value={nama}
+              onChange={(e) =>
+                setNama(
+                  e.target.value
+                )
+              }
+              placeholder="Nama Kereta"
+              className="
+              w-full
+              rounded-xl
+              border
+              border-[#233554]
+              bg-[#0f172a]
+              px-5
+              py-4
+              text-white
+            "
+            />
+
+            <button
+              onClick={
+                handleCreate
+              }
+              className="
+              mt-6
+              w-full
+              rounded-xl
+              bg-cyan-400
+              py-4
+              font-bold
+              text-black
+            "
+            >
+              Simpan
+            </button>
+
           </div>
+
         </div>
+
       )}
+
     </AdminShell>
-  );
+  )
 }
