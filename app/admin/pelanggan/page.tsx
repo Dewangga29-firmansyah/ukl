@@ -97,13 +97,13 @@ export default function AdminPelangganPage() {
                     {passenger.nama || "-"}
                   </td>
                   <td className="px-6 py-5 text-[#c9d7ee]">
-                    {passenger.nik || "-"}
+                    {(passenger as any).nik ?? "-"}
                   </td>
                   <td className="px-6 py-5 text-[#c9d7ee]">
-                    {passenger.telp || "-"}
+                    {(passenger as any).telp ?? "-"}
                   </td>
                   <td className="px-6 py-5 text-[#06d5f2]">
-                    {passenger.user?.username || "-"}
+                    {(passenger as any).user?.username ?? "-"}
                   </td>
                 </tr>
               ))
