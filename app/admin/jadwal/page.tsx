@@ -108,6 +108,93 @@ export default function Page() {
 
     load()
   }
+  async function submit() {
+    try {
+      const token = getAuthToken()
+
+      if (!token) {
+        alert('Silakan login ulang')
+        return
+      }
+
+      const url = editId
+        ? `${API_URL}/jadwal/${editId}`
+        : `${API_URL}/jadwal`
+
+      const method =
+        editId
+          ? 'PATCH'
+          : 'POST'
+
+      const res =
+        await fetch(
+          url,
+          {
+            method,
+
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+
+              'Content-Type':
+                'application/json',
+            },
+
+            body:
+              JSON.stringify(
+                {
+                  ...form,
+                  harga:
+                    Number(
+                      form.harga,
+                    ),
+                },
+              ),
+          },
+        )
+
+      const data =
+        await res.json()
+
+      if (!res.ok) {
+        throw new Error(
+          Array.isArray(
+            data.message,
+          )
+            ? data.message.join(
+              '\n',
+            )
+            : data.message,
+        )
+      }
+
+      alert(
+        editId
+          ? 'Jadwal berhasil diperbarui'
+          : 'Jadwal berhasil ditambahkan',
+      )
+
+      setShow(false)
+      setEditId('')
+      setForm(
+        trains[0]
+          ? {
+            ...empty,
+            keretaId:
+              trains[0].id,
+          }
+          : empty,
+      )
+
+      await load()
+    } catch (err) {
+      alert(
+        err instanceof Error
+          ? err.message
+          : 'Terjadi kesalahan',
+      )
+    }
+  }
 
   function edit(
     item: ApiJadwal,
