@@ -110,45 +110,45 @@ export default function Page() {
   }
 
   function edit(
-  item: ApiJadwal,
-) {
-  setEditId(item.id)
+    item: ApiJadwal,
+  ) {
+    setEditId(item.id)
 
-  setForm({
-    asal:
-      item.asal ?? '',
+    setForm({
+      asal:
+        item.asal ?? '',
 
-    tujuan:
-      item.tujuan ?? '',
+      tujuan:
+        item.tujuan ?? '',
 
-    tanggalBerangkat:
-      item.tanggalBerangkat
-        ?.slice(
-          0,
-          16,
-        ) ?? '',
+      tanggalBerangkat:
+        item.tanggalBerangkat
+          ?.slice(
+            0,
+            16,
+          ) ?? '',
 
-    tanggalTiba:
-      item.tanggalTiba
-        ?.slice(
-          0,
-          16,
-        ) ?? '',
+      tanggalTiba:
+        item.tanggalTiba
+          ?.slice(
+            0,
+            16,
+          ) ?? '',
 
-    harga:
-      Number(
-        item.harga,
-      ) || 0,
+      harga:
+        Number(
+          item.harga,
+        ) || 0,
 
-    keretaId:
-      (
-        item as any
-      ).keretaId ??
-      '',
-  })
+      keretaId:
+        (
+          item as any
+        ).keretaId ??
+        '',
+    })
 
-  setShow(true)
-}
+    setShow(true)
+  }
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -224,10 +224,7 @@ export default function Page() {
                       <div className="flex items-center gap-2">
                         <Train className="h-4 w-4 text-cyan-400" />
                         {
-                          item.kereta
-                            ?.nama ??
-                          item.kereta
-                            ?.nama_kereta ??
+                          item.kereta?.nama ??
                           '-'
                         }
                       </div>
