@@ -1,12 +1,13 @@
-"use client";
+'use client'
 
 import {
   FormEvent,
+  ReactNode,
   useState,
-} from "react";
+} from 'react'
 
-import Link from "next/link";
-import Image from "next/image";
+import Link from 'next/link'
+import Image from 'next/image'
 
 import {
   ArrowLeft,
@@ -18,106 +19,143 @@ import {
   Train,
   User,
   CreditCard,
-} from "lucide-react";
+} from 'lucide-react'
 
-import { API_URL } from "../lib/api";
+import {
+  API_URL,
+} from '../lib/api'
+
+type RegisterForm = {
+  username: string
+  password: string
+  nik: string
+  nama: string
+  alamat: string
+  telp: string
+}
 
 export default function RegisterPage() {
-  const [showPassword, setShowPassword] =
-    useState(false);
+  const [
+    showPassword,
+    setShowPassword,
+  ] =
+    useState(false)
 
-  const [loading, setLoading] =
-    useState(false);
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(false)
 
-  const [error, setError] =
-    useState("");
+  const [
+    error,
+    setError,
+  ] =
+    useState('')
 
-  const [form, setForm] =
-    useState({
-      username: "",
-      password: "",
-      nik: "",
-      nama: "",
-      alamat: "",
-      telp: "",
-    });
+  const [
+    form,
+    setForm,
+  ] =
+    useState<RegisterForm>({
+      username: '',
+      password: '',
+      nik: '',
+      nama: '',
+      alamat: '',
+      telp: '',
+    })
 
   function update(
-    key: string,
-    value: string
+    key: keyof RegisterForm,
+    value: string,
   ) {
-    setForm((s) => ({
-      ...s,
-      [key]: value,
-    }));
+    setForm(
+      (
+        prev,
+      ) => ({
+        ...prev,
+        [key]:
+          value,
+      }),
+    )
   }
 
   async function handleSubmit(
-    event: FormEvent
+    event: FormEvent,
   ) {
-    event.preventDefault();
-
-    setLoading(true);
-    setError("");
+    event.preventDefault()
 
     try {
+      setLoading(
+        true,
+      )
+
+      setError(
+        '',
+      )
+
       const res =
         await fetch(
           `${API_URL}/auth/register`,
           {
             method:
-              "POST",
+              'POST',
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+            headers:
+              {
+                'Content-Type':
+                  'application/json',
+              },
 
             body:
-              JSON.stringify({
-                ...form,
+              JSON.stringify(
+                {
+                  ...form,
 
-                role:
-                  "PELANGGAN",
-              }),
-          }
-        );
+                  role:
+                    'PELANGGAN',
+                },
+              ),
+          },
+        )
 
       const data =
-        await res.json();
+        await res.json()
 
       if (
         !res.ok
       ) {
         throw new Error(
           Array.isArray(
-            data.message
+            data.message,
           )
             ? data.message.join(
-                "\n"
+                '\n',
               )
-            : data.message
-        );
+            : data.message,
+        )
       }
 
       alert(
-        "Registrasi berhasil"
-      );
+        'Registrasi berhasil',
+      )
 
-      location.href =
-        "/login";
-
+      window.location.href =
+        '/login'
     } catch (
-      err
+      err,
     ) {
       setError(
         err instanceof
           Error
           ? err.message
-          : "Registrasi gagal"
-      );
+          : 'Registrasi gagal',
+      )
     } finally {
-      setLoading(false);
+      setLoading(
+        false,
+      )
     }
   }
 
@@ -136,37 +174,26 @@ export default function RegisterPage() {
 
         <div className="absolute inset-0 bg-black/60" />
 
-        <div className="absolute inset-0 p-16 flex flex-col justify-between">
+        <div className="absolute inset-0 flex flex-col justify-between p-16">
 
           <div className="flex items-center gap-3">
-
             <Train />
-
             <h1 className="text-3xl font-black">
-
               RailNusantara
-
             </h1>
-
           </div>
 
           <div>
 
             <h2 className="text-6xl font-black">
-
               Daftar
               <br />
-
               Sekarang
-
             </h2>
 
             <p className="mt-5 text-zinc-300">
-
-              Nikmati perjalanan
-              nyaman bersama
-              RailNusantara.
-
+              Nikmati perjalanan nyaman bersama
+              RailNusantara
             </p>
 
           </div>
@@ -183,11 +210,8 @@ export default function RegisterPage() {
             href="/"
             className="mb-8 inline-flex items-center gap-2 text-zinc-400"
           >
-
             <ArrowLeft />
-
             Kembali
-
           </Link>
 
           <form
@@ -198,99 +222,87 @@ export default function RegisterPage() {
           >
 
             <h1 className="text-3xl font-black">
-
               Registrasi
-
             </h1>
 
             <div className="mt-8 grid gap-5">
 
               <Input
-                icon={
-                  <User />
-                }
-                placeholder="Username"
+                icon={<User />}
                 value={
                   form.username
                 }
+                placeholder="Username"
                 onChange={(
-                  v
+                  v: string,
                 ) =>
                   update(
-                    "username",
-                    v
+                    'username',
+                    v,
                   )
                 }
               />
 
               <Input
-                icon={
-                  <User />
-                }
-                placeholder="Nama"
+                icon={<User />}
                 value={
                   form.nama
                 }
+                placeholder="Nama"
                 onChange={(
-                  v
+                  v: string,
                 ) =>
                   update(
-                    "nama",
-                    v
+                    'nama',
+                    v,
                   )
                 }
               />
 
               <Input
-                icon={
-                  <CreditCard />
-                }
-                placeholder="NIK"
+                icon={<CreditCard />}
                 value={
                   form.nik
                 }
+                placeholder="NIK"
                 onChange={(
-                  v
+                  v: string,
                 ) =>
                   update(
-                    "nik",
-                    v
+                    'nik',
+                    v,
                   )
                 }
               />
 
               <Input
-                icon={
-                  <MapPin />
-                }
-                placeholder="Alamat"
+                icon={<MapPin />}
                 value={
                   form.alamat
                 }
+                placeholder="Alamat"
                 onChange={(
-                  v
+                  v: string,
                 ) =>
                   update(
-                    "alamat",
-                    v
+                    'alamat',
+                    v,
                   )
                 }
               />
 
               <Input
-                icon={
-                  <Phone />
-                }
-                placeholder="No Telepon"
+                icon={<Phone />}
                 value={
                   form.telp
                 }
+                placeholder="No Telepon"
                 onChange={(
-                  v
+                  v: string,
                 ) =>
                   update(
-                    "telp",
-                    v
+                    'telp',
+                    v,
                   )
                 }
               />
@@ -304,20 +316,19 @@ export default function RegisterPage() {
                   minLength={6}
                   type={
                     showPassword
-                      ? "text"
-                      : "password"
+                      ? 'text'
+                      : 'password'
                   }
                   value={
                     form.password
                   }
                   onChange={(
-                    e
+                    e,
                   ) =>
                     update(
-                      "password",
-                      e
-                        .target
-                        .value
+                      'password',
+                      e.target
+                        .value,
                     )
                   }
                   placeholder="Password"
@@ -328,7 +339,10 @@ export default function RegisterPage() {
                   type="button"
                   onClick={() =>
                     setShowPassword(
-                      !showPassword
+                      (
+                        prev,
+                      ) =>
+                        !prev,
                     )
                   }
                   className="absolute right-4 top-4"
@@ -345,13 +359,9 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-
               <div className="mt-6 rounded-xl bg-red-500/10 p-4 text-red-300">
-
                 {error}
-
               </div>
-
             )}
 
             <button
@@ -360,11 +370,9 @@ export default function RegisterPage() {
               }
               className="mt-8 h-14 w-full rounded-2xl bg-blue-600 font-bold"
             >
-
               {loading
-                ? "Memproses..."
-                : "Daftar"}
-
+                ? 'Memproses...'
+                : 'Daftar'}
             </button>
 
           </form>
@@ -374,7 +382,16 @@ export default function RegisterPage() {
       </div>
 
     </div>
-  );
+  )
+}
+
+type InputProps = {
+  icon: ReactNode
+  value: string
+  placeholder: string
+  onChange: (
+    value: string,
+  ) => void
 }
 
 function Input({
@@ -382,28 +399,33 @@ function Input({
   value,
   placeholder,
   onChange,
-}: any) {
+}: InputProps) {
   return (
     <div className="relative">
 
       <div className="absolute left-4 top-4 text-zinc-500">
-
         {icon}
-
       </div>
 
       <input
         required
-        value={value}
-        onChange={(e) =>
+        value={
+          value
+        }
+        onChange={(
+          e,
+        ) =>
           onChange(
-            e.target.value
+            e.target
+              .value,
           )
         }
-        placeholder={placeholder}
+        placeholder={
+          placeholder
+        }
         className="h-14 w-full rounded-2xl bg-[#030712] pl-14 pr-5"
       />
 
     </div>
-  );
+  )
 }
