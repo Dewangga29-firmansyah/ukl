@@ -1,374 +1,323 @@
 'use client'
 
 import {
-    useEffect,
-    useState,
+  useEffect,
+  useState,
 } from 'react'
 
 import Link from 'next/link'
 
 import {
-    ArrowRight,
-    Calendar,
-    Loader2,
-    Ticket,
-    Train,
+  ArrowRight,
+  Calendar,
+  Loader2,
+  Ticket,
+  Train,
 } from 'lucide-react'
 
 import {
-    API_URL,
-    getAuthToken,
+  API_URL,
+  getAuthToken,
 } from '@/app/lib/api'
 
 type Tiket = {
-    id: string
-    kodeBooking: string
-    total: number
-    status: string
+  id: string
+  kodeBooking: string
+  total: number
+  status: string
 
-    jadwal?: {
-        asal: string
-        tujuan: string
-        tanggalBerangkat: string
+  jadwal?: {
+    asal?: string
+    tujuan?: string
+    tanggalBerangkat?: string
 
-        kereta?: {
-            nama: string
-        }
+    kereta?: {
+      nama?: string
     }
+  }
 
-    detail?: {
-        id: string
-    }[]
+  detail?: {
+    id: string
+  }[]
 }
 
 export default function Page() {
-    const [
-        tiket,
-        setTiket,
-    ] =
-        useState<Tiket[]>([])
+  const [
+    tiket,
+    setTiket,
+  ] =
+    useState<Tiket[]>([])
 
-    const [
-        loading,
-        setLoading,
-    ] =
-        useState(true)
+  const [
+    loading,
+    setLoading,
+  ] =
+    useState(true)
 
-    useEffect(() => {
-        load()
-    }, [])
+  useEffect(() => {
+    load()
+  }, [])
 
-    async function load() {
-        try {
-            setLoading(true)
+  async function load() {
+    try {
+      setLoading(true)
 
-            const token =
-                getAuthToken()
+      const token =
+        getAuthToken()
 
-            const res =
-                await fetch(
-                    `${API_URL}/pembelian/mine`,
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${token}`,
-                        },
+      if (!token) {
+        setTiket([])
+        return
+      }
 
-                        cache:
-                            'no-store',
-                    },
-                )
+      const res =
+        await fetch(
+          `${API_URL}/pembelian/mine`,
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
 
-            const data =
-                await res.json()
+            cache:
+              'no-store',
+          },
+        )
 
-            console.log(
-                'DATA TIKET:',
-                data,
-            )
+      const json =
+        await res.json()
 
-            if (!res.ok) {
-                setTiket([])
-                return
-            }
+      if (!res.ok) {
+        throw new Error(
+          json.message ||
+            'Gagal memuat tiket',
+        )
+      }
 
-            setTiket(
-                Array.isArray(data)
-                    ? data
-                    : [],
-            )
-        } catch (err) {
-            console.error(
-                err,
-            )
-
-            setTiket([])
-        } finally {
-            setLoading(
-                false,
-            )
-        }
-    }
-
-    function statusColor(
-        status:
-            | string
-            | undefined,
+      setTiket(
+        Array.isArray(
+          json,
+        )
+          ? json
+          : [],
+      )
+    } catch (
+      err
     ) {
-        if (
-            status ===
-            'PAID'
-        )
-            return 'bg-green-500/20 text-green-400'
+      console.error(
+        err,
+      )
 
-        if (
-            status ===
-            'PENDING'
-        )
-            return 'bg-yellow-500/20 text-yellow-400'
+      setTiket([])
+    } finally {
+      setLoading(
+        false,
+      )
+    }
+  }
 
+  function statusColor(
+    status?: string,
+  ) {
+    switch (
+      status
+    ) {
+      case 'PAID':
+        return 'bg-green-500/20 text-green-400'
+
+      case 'PENDING':
+        return 'bg-yellow-500/20 text-yellow-400'
+
+      default:
         return 'bg-red-500/20 text-red-400'
     }
+  }
 
-    if (
-        loading
-    ) {
-        return (
-            <div className="flex justify-center py-24">
-                <Loader2 className="h-10 w-10 animate-spin text-cyan-400" />
-            </div>
-        )
-    }
-
+  if (
+    loading
+  ) {
     return (
-        <div className="space-y-8">
+      <div className="flex justify-center py-24">
+        <Loader2 className="h-10 w-10 animate-spin text-cyan-400" />
+      </div>
+    )
+  }
 
-            <div>
+  return (
+    <div className="space-y-8">
 
-                <h1 className="text-4xl font-black text-white">
-                    Tiket Saya
-                </h1>
+      <div>
 
-                <p className="mt-2 text-slate-400">
-                    Semua tiket perjalanan Anda
-                </p>
+        <h1 className="text-4xl font-black text-white">
+          Tiket Saya
+        </h1>
 
-            </div>
+        <p className="mt-2 text-slate-400">
+          Semua tiket perjalanan Anda
+        </p>
 
-            {!tiket.length && (
-                <div
-                    className="
-          rounded-3xl
-          border
-          border-dashed
-          border-slate-700
-          py-20
-          text-center
-        "
-                >
+      </div>
 
-                    <Ticket
-                        size={60}
-                        className="
-            mx-auto
-            mb-5
-            text-slate-600
-          "
-                    />
+      {tiket.length ===
+        0 && (
+        <div className="rounded-3xl border border-dashed border-slate-700 py-20 text-center">
 
-                    <h2 className="text-2xl font-bold text-white">
-                        Belum Ada Tiket
-                    </h2>
+          <Ticket
+            size={
+              60
+            }
+            className="mx-auto mb-5 text-slate-600"
+          />
 
-                    <p className="mt-3 text-slate-500">
-                        Pesan perjalanan pertama Anda
-                    </p>
+          <h2 className="text-2xl font-bold text-white">
+            Belum Ada Tiket
+          </h2>
 
-                    <Link
-                        href="/pelanggan/cari-tiket"
-                        className="
-            mt-8
-            inline-flex
-            rounded-xl
-            bg-cyan-400
-            px-6
-            py-3
-            font-bold
-            text-black
-          "
-                    >
-                        Cari Tiket
-                    </Link>
+          <p className="mt-3 text-slate-500">
+            Pesan perjalanan pertama Anda
+          </p>
 
-                </div>
-            )}
-
-            <div className="grid gap-6">
-
-                {tiket.map(
-                    (
-                        item,
-                    ) => (
-                        <div
-                            key={
-                                item.id
-                            }
-                            className="
-              rounded-[32px]
-              border
-              border-slate-800
-              bg-[#121b2d]
-              p-8
-            "
-                        >
-
-                            <div className="flex justify-between">
-
-                                <div>
-
-                                    <div className="flex items-center gap-3">
-
-                                        <Train className="text-cyan-400" />
-
-                                        <h2 className="text-2xl font-bold text-white">
-
-                                            {
-                                                item
-                                                    .jadwal
-                                                    ?.kereta
-                                                    ?.nama
-                                            }
-
-                                        </h2>
-
-                                    </div>
-
-                                    <p className="mt-3 text-slate-400">
-
-                                        {
-                                            item
-                                                .kodeBooking
-                                        }
-
-                                    </p>
-
-                                </div>
-
-                                <span
-                                    className={`
-                  rounded-xl
-                  px-4
-                  py-2
-                  text-sm
-                  font-bold
-                  ${statusColor(
-                                        item.status,
-                                    )}
-                `}
-                                >
-
-                                    {
-                                        item.status
-                                    }
-
-                                </span>
-
-                            </div>
-
-                            <div className="mt-8 flex items-center gap-4 text-3xl font-black text-white">
-
-                                <span>
-                                    {
-                                        item
-                                            .jadwal
-                                            ?.asal
-                                    }
-                                </span>
-
-                                <ArrowRight />
-
-                                <span>
-                                    {
-                                        item
-                                            .jadwal
-                                            ?.tujuan
-                                    }
-                                </span>
-
-                            </div>
-
-                            <div className="mt-5 flex items-center gap-2 text-slate-400">
-
-                                <Calendar />
-
-                                {item
-                                    .jadwal
-                                    ?.tanggalBerangkat
-                                    ? new Date(
-                                        item
-                                            .jadwal
-                                            ?.tanggalBerangkat,
-                                    ).toLocaleString(
-                                        'id-ID',
-                                    )
-                                    : '-'}
-
-                            </div>
-
-                            <div className="mt-5 text-cyan-400">
-
-                                {
-                                    item
-                                        .detail
-                                        ?.length ??
-                                    0
-                                }{' '}
-                                Penumpang
-
-                            </div>
-
-                            <div className="mt-8 flex gap-3">
-
-                                <Link
-                                    href={`/pelanggan/tiket/${item.id}`}
-                                    className="
-                  rounded-xl
-                  bg-cyan-400
-                  px-6
-                  py-3
-                  font-bold
-                  text-black
-                "
-                                >
-                                    Detail Tiket
-                                </Link>
-
-                                {item.status ===
-                                    'PENDING' && (
-                                        <Link
-                                            href={`/pelanggan/pembayaran?id=${item.id}`}
-                                            className="
-                    rounded-xl
-                    border
-                    border-cyan-400
-                    px-6
-                    py-3
-                    font-bold
-                    text-cyan-400
-                  "
-                                        >
-                                            Bayar
-                                        </Link>
-                                    )}
-
-                            </div>
-
-                        </div>
-                    ),
-                )}
-
-            </div>
+          <Link
+            href="/pelanggan"
+            className="mt-8 inline-flex rounded-xl bg-cyan-400 px-6 py-3 font-bold text-black"
+          >
+            Cari Tiket
+          </Link>
 
         </div>
-    )
+      )}
+
+      <div className="grid gap-6">
+
+        {tiket.map(
+          (
+            item,
+          ) => (
+            <div
+              key={
+                item.id
+              }
+              className="rounded-[32px] border border-slate-800 bg-[#121b2d] p-8"
+            >
+
+              <div className="flex justify-between">
+
+                <div>
+
+                  <div className="flex items-center gap-3">
+
+                    <Train className="text-cyan-400" />
+
+                    <h2 className="text-2xl font-bold text-white">
+
+                      {item
+                        .jadwal
+                        ?.kereta
+                        ?.nama ||
+                        'Kereta'}
+
+                    </h2>
+
+                  </div>
+
+                  <p className="mt-3 text-slate-400">
+                    {
+                      item.kodeBooking
+                    }
+                  </p>
+
+                </div>
+
+                <span
+                  className={`rounded-xl px-4 py-2 text-sm font-bold ${statusColor(item.status)}`}
+                >
+                  {
+                    item.status
+                  }
+                </span>
+
+              </div>
+
+              <div className="mt-8 flex items-center gap-4 text-3xl font-black text-white">
+
+                <span>
+                  {item
+                    .jadwal
+                    ?.asal ||
+                    '-'}
+                </span>
+
+                <ArrowRight />
+
+                <span>
+                  {item
+                    .jadwal
+                    ?.tujuan ||
+                    '-'}
+                </span>
+
+              </div>
+
+              <div className="mt-5 flex items-center gap-2 text-slate-400">
+
+                <Calendar />
+
+                {item
+                  .jadwal
+                  ?.tanggalBerangkat
+                  ? new Date(
+                      item
+                        .jadwal
+                        .tanggalBerangkat,
+                    ).toLocaleString(
+                      'id-ID',
+                    )
+                  : '-'}
+
+              </div>
+
+              <div className="mt-5 text-cyan-400">
+
+                {
+                  item
+                    .detail
+                    ?.length ??
+                  0
+                }{' '}
+                Penumpang
+
+              </div>
+
+              <div className="mt-8 flex gap-3">
+
+                {item.status ===
+                  'PAID' && (
+                  <Link
+                    href={`/pelanggan/tiket/${item.id}`}
+                    className="rounded-xl bg-cyan-400 px-6 py-3 font-bold text-black"
+                  >
+                    Lihat Tiket
+                  </Link>
+                )}
+
+                {item.status ===
+                  'PENDING' && (
+                  <Link
+                    href={`/pelanggan/pembayaran?id=${item.id}`}
+                    className="rounded-xl border border-cyan-400 px-6 py-3 font-bold text-cyan-400"
+                  >
+                    Bayar
+                  </Link>
+                )}
+
+              </div>
+
+            </div>
+          ),
+        )}
+
+      </div>
+
+    </div>
+  )
 }
