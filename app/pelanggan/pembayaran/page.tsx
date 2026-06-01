@@ -1,6 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import {
+  Suspense,
+  useEffect,
+  useState,
+} from 'react'
 
 import {
   useRouter,
@@ -11,7 +15,6 @@ import QRCode from 'react-qr-code'
 
 import {
   Calendar,
-  Clock,
   CreditCard,
   Loader2,
   Train,
@@ -22,86 +25,128 @@ import {
   getAuthToken,
 } from '@/app/lib/api'
 
+export const dynamic =
+  'force-dynamic'
+
 type Data = {
   id: string
   kodeBooking: string
   total: number
   status: string
 
-  jadwal: {
-    asal: string
-    tujuan: string
-    tanggalBerangkat: string
+  jadwal?: {
+    asal?: string
+    tujuan?: string
+    tanggalBerangkat?: string
 
-    kereta: {
-      nama: string
+    kereta?: {
+      nama?: string
     }
   }
 
-  detail: {
+  detail?: {
     namaPenumpang: string
-    kursi: {
-      label: string
+
+    kursi?: {
+      label?: string
     }
   }[]
 }
 
-export default function Page() {
+function Content() {
   const router =
     useRouter()
 
   const search =
     useSearchParams()
 
-  const id =
-    search.get('id')
-
-  const [loading, setLoading] =
+  const [
+    loading,
+    setLoading,
+  ] =
     useState(true)
 
-  const [paying, setPaying] =
+  const [
+    paying,
+    setPaying,
+  ] =
     useState(false)
 
-  const [data, setData] =
-    useState<Data>()
-
-  async function load() {
-    try {
-      const token =
-        getAuthToken()
-
-      const res =
-        await fetch(
-          `${API_URL}/pembelian/${id}`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        )
-
-      const json =
-        await res.json()
-
-      setData(
-        json
-      )
-
-    } finally {
-      setLoading(
-        false
-      )
-    }
-  }
+  const [
+    data,
+    setData,
+  ] =
+    useState<Data | null>(
+      null
+    )
 
   useEffect(() => {
-    if (id)
-      load()
-  }, [id])
+    async function load() {
+      try {
+        const id =
+          search.get(
+            'id'
+          )
+
+        if (!id) {
+          setLoading(
+            false
+          )
+          return
+        }
+
+        const token =
+          getAuthToken()
+
+        const res =
+          await fetch(
+            `${API_URL}/pembelian/${id}`,
+            {
+              headers:
+                {
+                  Authorization:
+                    `Bearer ${token}`,
+                },
+
+              cache:
+                'no-store',
+            }
+          )
+
+        if (!res.ok) {
+          throw new Error()
+        }
+
+        const json =
+          await res.json()
+
+        setData(
+          json
+        )
+      } catch {
+        setData(
+          null
+        )
+      } finally {
+        setLoading(
+          false
+        )
+      }
+    }
+
+    load()
+  }, [search])
 
   async function bayar() {
     try {
+      const id =
+        search.get(
+          'id'
+        )
+
+      if (!id)
+        return
+
       setPaying(
         true
       )
@@ -124,33 +169,12 @@ export default function Page() {
           }
         )
 
-      const json =
-        await res.json()
-
-      if (
-        !res.ok
-      ) {
-        throw new Error(
-          json.message
-        )
+      if (!res.ok) {
+        throw new Error()
       }
-
-      alert(
-        'Pembayaran berhasil'
-      )
 
       router.push(
         `/pelanggan/tiket/${id}`
-      )
-
-    } catch (
-      err
-    ) {
-      alert(
-        err instanceof
-          Error
-            ? err.message
-            : 'Error'
       )
     } finally {
       setPaying(
@@ -163,8 +187,8 @@ export default function Page() {
     loading
   ) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <Loader2 className="animate-spin text-cyan-400" />
+      <div className="flex h-[70vh] items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-cyan-400" />
       </div>
     )
   }
@@ -173,8 +197,8 @@ export default function Page() {
     !data
   ) {
     return (
-      <div className="text-white">
-        Data tidak ditemukan
+      <div className="py-24 text-center text-white">
+        Data pembayaran tidak ditemukan
       </div>
     )
   }
@@ -182,7 +206,7 @@ export default function Page() {
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
 
-      <div className="space-y-6">
+      <div>
 
         <div className="rounded-[32px] bg-[#121b2d] p-8">
 
@@ -194,23 +218,28 @@ export default function Page() {
 
               <h1 className="text-4xl font-black text-white">
                 {
-                  data.jadwal
-                    .kereta
-                    .nama
+                  data
+                    .jadwal
+                    ?.kereta
+                    ?.nama
+                    ??
+                  '-'
                 }
               </h1>
 
               <p className="text-[#8fb5df]">
                 {
-                  data.jadwal
-                    .asal
+                  data
+                    .jadwal
+                    ?.asal
                 }
 
                 →
 
                 {
-                  data.jadwal
-                    .tujuan
+                  data
+                    .jadwal
+                    ?.tujuan
                 }
               </p>
 
@@ -218,26 +247,16 @@ export default function Page() {
 
           </div>
 
-          <div className="mt-10 rounded-3xl bg-[#09111f] p-10">
+          <div className="mt-8 rounded-3xl bg-[#09111f] p-8">
 
             <div className="flex justify-center">
 
               <div className="rounded-3xl bg-white p-6">
 
                 <QRCode
+                  size={240}
                   value={
-                    JSON.stringify(
-                      {
-                        id:
-                          data.id,
-
-                        kode:
-                          data.kodeBooking,
-                      }
-                    )
-                  }
-                  size={
-                    240
+                    data.kodeBooking
                   }
                 />
 
@@ -245,17 +264,13 @@ export default function Page() {
 
             </div>
 
-            <div className="mt-8 text-center">
+            <div className="mt-6 text-center">
 
-              <h2 className="text-3xl font-black text-cyan-400">
+              <div className="text-3xl font-black text-cyan-400">
                 {
                   data.kodeBooking
                 }
-              </h2>
-
-              <p className="mt-2 text-[#8fb5df]">
-                Tunjukkan QR ini saat boarding
-              </p>
+              </div>
 
             </div>
 
@@ -277,27 +292,25 @@ export default function Page() {
 
           </h2>
 
-          <div className="mt-8 space-y-5">
+          <div className="mt-8">
 
             <div className="flex justify-between">
 
-              <span className="text-[#8fb5df]">
+              <span className="text-slate-400">
                 Status
               </span>
 
               <span className="text-cyan-400">
-
                 {
                   data.status
                 }
-
               </span>
 
             </div>
 
-            <div className="flex justify-between">
+            <div className="mt-5 flex justify-between">
 
-              <span className="text-[#8fb5df]">
+              <span className="text-slate-400">
                 Jadwal
               </span>
 
@@ -305,60 +318,23 @@ export default function Page() {
 
                 <Calendar className="mr-2 inline h-4" />
 
-                {new Date(
+                {
                   data
                     .jadwal
-                    .tanggalBerangkat
-                ).toLocaleDateString(
-                  'id-ID'
-                )}
+                    ?.tanggalBerangkat
+                    ? new Date(
+                        data.jadwal.tanggalBerangkat
+                      ).toLocaleDateString(
+                        'id-ID'
+                      )
+                    : '-'
+                }
 
               </span>
 
             </div>
 
-            <div>
-
-              <div className="text-[#8fb5df]">
-                Penumpang
-              </div>
-
-              <div className="mt-3 space-y-2">
-
-                {data.detail.map(
-                  (
-                    p,
-                    i
-                  ) => (
-
-                    <div
-                      key={
-                        i
-                      }
-                      className="rounded-xl bg-[#09111f] p-3 text-white"
-                    >
-
-                      {
-                        p.namaPenumpang
-                      }
-
-                      {' • '}
-
-                      {
-                        p.kursi
-                          .label
-                      }
-
-                    </div>
-
-                  )
-                )}
-
-              </div>
-
-            </div>
-
-            <div className="border-t border-white/10 pt-6">
+            <div className="mt-8 border-t border-white/10 pt-8">
 
               <div className="flex justify-between">
 
@@ -368,9 +344,14 @@ export default function Page() {
 
                 <span className="text-4xl font-black text-cyan-400">
 
-                  Rp{' '}
+                  Rp
 
-                  {data.total.toLocaleString(
+                  {' '}
+
+                  {(
+                    data.total ??
+                    0
+                  ).toLocaleString(
                     'id-ID'
                   )}
 
@@ -382,6 +363,7 @@ export default function Page() {
 
             {data.status ===
               'PENDING' && (
+
               <button
                 onClick={
                   bayar
@@ -390,22 +372,20 @@ export default function Page() {
                   paying
                 }
                 className="
-                mt-6
-                h-16
+                mt-8
+                h-14
                 w-full
                 rounded-2xl
                 bg-cyan-400
-                text-xl
                 font-black
                 text-black
               "
               >
-
                 {paying
                   ? 'Memproses...'
                   : 'Bayar Sekarang'}
-
               </button>
+
             )}
 
           </div>
@@ -415,5 +395,19 @@ export default function Page() {
       </div>
 
     </div>
+  )
+}
+
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-[70vh] items-center justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-cyan-400" />
+        </div>
+      }
+    >
+      <Content />
+    </Suspense>
   )
 }
