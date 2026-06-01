@@ -144,7 +144,7 @@ export default function RegisterPage() {
       window.location.href =
         '/login'
     } catch (
-      err,
+      err
     ) {
       setError(
         err instanceof
