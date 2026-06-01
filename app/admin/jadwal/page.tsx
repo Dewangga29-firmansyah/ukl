@@ -51,56 +51,47 @@ export default function Page() {
   const [form, setForm] = useState<Form>(empty)
 
   async function load() {
-    setLoading(true)
     try {
-      const [jadwal, kereta] = await Promise.all([
-        getJadwal(),
-        getKereta(),
-      ])
+      setLoading(true)
+
+      const [jadwalRes, keretaRes] =
+        await Promise.all([
+          getJadwal(),
+          getKereta(),
+        ])
+
+      const jadwal =
+        Array.isArray(jadwalRes)
+          ? jadwalRes
+          : []
+
+      const kereta =
+        Array.isArray(keretaRes)
+          ? keretaRes
+          : []
 
       setData(jadwal)
       setTrains(kereta)
 
-      if (kereta[0]) {
+      if (
+        kereta.length &&
+        !form.keretaId
+      ) {
         setForm((s) => ({
           ...s,
-          keretaId: kereta[0].id,
+          keretaId:
+            kereta[0]?.id ??
+            '',
         }))
       }
+    } catch (err) {
+      console.error(err)
+
+      setData([])
+      setTrains([])
     } finally {
       setLoading(false)
     }
-  }
-
-  useEffect(() => {
-    load()
-  }, [])
-
-  async function submit() {
-    const token = getAuthToken()
-    const url = editId ? `${API_URL}/jadwal/${editId}` : `${API_URL}/jadwal`
-    const method = editId ? 'PATCH' : 'POST'
-
-    const res = await fetch(url, {
-      method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(form),
-    })
-
-    const result = await res.json()
-
-    if (!res.ok) {
-      alert(result.message)
-      return
-    }
-
-    await load()
-    setShow(false)
-    setEditId('')
-    setForm(empty)
   }
 
   async function remove(id: string) {
@@ -118,20 +109,50 @@ export default function Page() {
     load()
   }
 
-  function edit(item: ApiJadwal) {
+  function edit(
+    item: ApiJadwal,
+  ) {
     setEditId(item.id)
+
     setForm({
-      asal: item.asal,
-      tujuan: item.tujuan,
-      tanggalBerangkat: item.tanggalBerangkat.slice(0, 16),
-      tanggalTiba: item.tanggalTiba.slice(0, 16),
-      harga: item.harga,
-      keretaId: item.keretaId,
+      asal:
+        item.asal ??
+        '',
+
+      tujuan:
+        item.tujuan ??
+        '',
+
+      tanggalBerangkat:
+        item
+          .tanggalBerangkat
+          ?.slice(
+            0,
+            16,
+          ) ?? '',
+
+      tanggalTiba:
+        item
+          .tanggalTiba
+          ?.slice(
+            0,
+            16,
+          ) ?? '',
+
+      harga:
+        Number(
+          item.harga,
+        ) || 0,
+
+      keretaId:
+        item
+          .keretaId ??
+        '',
     })
+
     setShow(true)
   }
 
-  // Helper untuk format tanggal di tabel agar rapi
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
       day: 'numeric',
@@ -140,6 +161,10 @@ export default function Page() {
       minute: '2-digit',
     }
     return new Date(dateString).toLocaleDateString('id-ID', options)
+  }
+
+  if (!Array.isArray(data)) {
+    return null
   }
 
   return (
@@ -201,7 +226,13 @@ export default function Page() {
                     <td className="p-4 pl-6 font-semibold text-white">
                       <div className="flex items-center gap-2">
                         <Train className="h-4 w-4 text-cyan-400" />
-                        {item.kereta?.nama || 'Tidak Diketahui'}
+                        {
+                          item.kereta
+                            ?.nama ??
+                          item.kereta
+                            ?.nama_kereta ??
+                          '-'
+                        }
                       </div>
                     </td>
 
@@ -254,7 +285,7 @@ export default function Page() {
       {show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-xl rounded-2xl border border-slate-800 bg-[#0f172a] p-6 shadow-2xl relative">
-            
+
             {/* Modal Header */}
             <div className="mb-6 flex items-center justify-between border-b border-slate-800 pb-4">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -271,7 +302,7 @@ export default function Page() {
 
             {/* Modal Content / Form */}
             <div className="space-y-4">
-              
+
               {/* Select Kereta */}
               <div>
                 <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1.5">
@@ -282,11 +313,12 @@ export default function Page() {
                   onChange={(e) => setForm({ ...form, keretaId: e.target.value })}
                   className="w-full h-11 rounded-xl border border-slate-800 bg-[#121b2d] px-4 text-sm text-white transition focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 >
-                  {trains.map((k) => (
-                    <option key={k.id} value={k.id}>
-                      {k.nama}
-                    </option>
-                  ))}
+                  {(trains ?? []).map(
+                    (k) => (
+                      <option key={k.id} value={k.id}>
+                        {k.nama ?? '-'}
+                      </option>
+                    ))}
                 </select>
               </div>
 
