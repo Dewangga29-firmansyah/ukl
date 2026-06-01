@@ -15,24 +15,103 @@ export default function LoginPage() {
     formRef.current?.setAttribute("data-ready", "true");
   }, []);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
+  async function handleSubmit(
+  event: FormEvent<HTMLFormElement>
+) {
+  event.preventDefault()
 
-    try {
-      const formData = new FormData(event.currentTarget);
-      const username = String(formData.get("username") || "");
-      const password = String(formData.get("password") || "");
-      const auth = await login({ username, password });
-      saveAuthSession(auth);
-      router.push("/admin/dashboard");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Login gagal.");
-    } finally {
-      setLoading(false);
+  setLoading(true)
+  setError(null)
+
+  try {
+    const formData =
+      new FormData(
+        event.currentTarget
+      )
+
+    const username =
+      String(
+        formData.get(
+          'username'
+        ) || ''
+      )
+
+    const password =
+      String(
+        formData.get(
+          'password'
+        ) || ''
+      )
+
+    const auth =
+      await login({
+        username,
+        password,
+      })
+
+    saveAuthSession(
+      auth
+    )
+
+    const token =
+      auth.access_token
+
+    if (!token) {
+      throw new Error(
+        'Token tidak ditemukan'
+      )
     }
+
+    const payload =
+      JSON.parse(
+        atob(
+          token
+            .split(
+              '.'
+            )[1]
+        )
+      )
+
+    const role =
+      (
+        payload.role ||
+        ''
+      ).toUpperCase()
+
+    if (
+      role ===
+      'ADMIN'
+    ) {
+      router.push(
+        '/admin/dashboard'
+      )
+    } else if (
+      role ===
+      'PELANGGAN'
+    ) {
+      router.push(
+        '/pelanggan'
+      )
+    } else {
+      throw new Error(
+        'Role tidak dikenali'
+      )
+    }
+
+  } catch (err) {
+
+    setError(
+      err instanceof Error
+        ? err.message
+        : 'Login gagal.'
+    )
+
+  } finally {
+
+    setLoading(false)
+
   }
+}
 
   return (
     <main className="flex min-h-screen bg-[#010818]">

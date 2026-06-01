@@ -1,148 +1,409 @@
 "use client";
 
+import {
+  FormEvent,
+  useState,
+} from "react";
+
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Lock, User, Eye, Train } from "lucide-react";
+
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  Lock,
+  MapPin,
+  Phone,
+  Train,
+  User,
+  CreditCard,
+} from "lucide-react";
+
+import { API_URL } from "../lib/api";
 
 export default function RegisterPage() {
-  return (
-    <div className="min-h-screen bg-[#070b19] flex text-white selection:bg-blue-500 selection:text-white font-sans antialiased overflow-x-hidden">
-      
-      {/* Decorative Ambient Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-600/10 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-indigo-600/10 blur-[150px] rounded-full pointer-events-none" />
+  const [showPassword, setShowPassword] =
+    useState(false);
 
-      {/* Left Side (Visual Panel) */}
-      <div className="relative hidden lg:flex w-1/2 overflow-hidden border-r border-white/5">
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [form, setForm] =
+    useState({
+      username: "",
+      password: "",
+      nik: "",
+      nama: "",
+      alamat: "",
+      telp: "",
+    });
+
+  function update(
+    key: string,
+    value: string
+  ) {
+    setForm((s) => ({
+      ...s,
+      [key]: value,
+    }));
+  }
+
+  async function handleSubmit(
+    event: FormEvent
+  ) {
+    event.preventDefault();
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res =
+        await fetch(
+          `${API_URL}/auth/register`,
+          {
+            method:
+              "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body:
+              JSON.stringify({
+                ...form,
+
+                role:
+                  "PELANGGAN",
+              }),
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (
+        !res.ok
+      ) {
+        throw new Error(
+          Array.isArray(
+            data.message
+          )
+            ? data.message.join(
+                "\n"
+              )
+            : data.message
+        );
+      }
+
+      alert(
+        "Registrasi berhasil"
+      );
+
+      location.href =
+        "/login";
+
+    } catch (
+      err
+    ) {
+      setError(
+        err instanceof
+          Error
+          ? err.message
+          : "Registrasi gagal"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-[#070b19] text-white lg:flex">
+
+      <div className="relative hidden w-1/2 lg:block">
+
         <Image
           src="/train-bg.jpg"
-          alt="Premium Train Interior"
+          alt="train"
           fill
           priority
-          className="object-cover scale-105 animate-[subtle-zoom_20s_infinite_alternate]"
+          className="object-cover"
         />
 
-        {/* Cinematic Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#070b19]/40 via-[#070b19]/80 to-[#070b19]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#070b19]/90" />
+        <div className="absolute inset-0 bg-black/60" />
 
-        <div className="absolute inset-0 p-16 flex flex-col justify-between z-10">
-          {/* Brand Logo */}
-          <div>
-            <div className="inline-flex items-center gap-3 rounded-2xl border border-white/5 bg-zinc-900/40 px-5 py-3 backdrop-blur-xl ring-1 ring-white/10">
-              <div className="rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 p-1.5 text-white shadow-lg shadow-blue-500/20">
-                <Train size={20} />
-              </div>
-              <span className="font-extrabold tracking-tight text-white text-xl">
-                Rail<span className="from-blue-400 to-indigo-400 bg-gradient-to-r bg-clip-text text-transparent">Nusantara</span>
-              </span>
-            </div>
-          </div>
+        <div className="absolute inset-0 p-16 flex flex-col justify-between">
 
-          {/* Premium Copywriting */}
-          <div className="max-w-xl">
-            <h1 className="text-5xl font-black tracking-tight leading-[1.15] text-white">
-              Mulai Langkah <br /> Kemewahan Anda Bersama <br />
-              <span className="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
-                RailNusantara
-              </span>
+          <div className="flex items-center gap-3">
+
+            <Train />
+
+            <h1 className="text-3xl font-black">
+
+              RailNusantara
+
             </h1>
 
-            <p className="mt-6 text-lg leading-relaxed text-zinc-400">
-              Dapatkan akses eksklusif untuk kemudahan reservasi Suite Class, pemantauan jadwal real-time, dan manajemen perjalanan VIP Anda dalam satu ketukan.
-            </p>
           </div>
 
-          {/* Luxury Footer Sign */}
-          <p className="text-xs font-medium tracking-wide text-zinc-600">
-            © 2026 RailNusantara Global Layanan Transportasi Utama. All rights reserved.
-          </p>
+          <div>
+
+            <h2 className="text-6xl font-black">
+
+              Daftar
+              <br />
+
+              Sekarang
+
+            </h2>
+
+            <p className="mt-5 text-zinc-300">
+
+              Nikmati perjalanan
+              nyaman bersama
+              RailNusantara.
+
+            </p>
+
+          </div>
+
         </div>
+
       </div>
 
-      {/* Right Side (Form Panel) */}
-      <div className="flex flex-1 items-center justify-center p-8 relative z-10 lg:bg-[#070b19]/40 backdrop-blur-sm">
-        <div className="w-full max-w-lg">
-          
+      <div className="flex flex-1 items-center justify-center p-8">
+
+        <div className="w-full max-w-xl">
+
           <Link
             href="/"
-            className="mb-8 inline-flex items-center gap-2.5 text-sm font-semibold text-zinc-400 transition-colors hover:text-white group"
+            className="mb-8 inline-flex items-center gap-2 text-zinc-400"
           >
-            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-            Kembali ke Beranda
+
+            <ArrowLeft />
+
+            Kembali
+
           </Link>
 
-          <div className="rounded-[32px] border border-white/5 bg-zinc-900/20 p-10 shadow-2xl backdrop-blur-2xl ring-1 ring-white/10 relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-            
-            <div className="mb-8">
-              <h2 className="text-3xl font-black tracking-tight">Buat Akun VIP</h2>
-              <p className="text-zinc-400 text-sm mt-2">Daftarkan diri Anda untuk akses layanan standard dunia.</p>
-            </div>
+          <form
+            onSubmit={
+              handleSubmit
+            }
+            className="rounded-3xl bg-[#111827] p-10"
+          >
 
-            {/* Username Field */}
-            <div className="mb-6">
-              <label className="mb-2.5 block text-xs font-bold uppercase tracking-wider text-zinc-400">
-                Username
-              </label>
+            <h1 className="text-3xl font-black">
 
-              <div className="relative group">
-                <User
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-blue-400 transition-colors"
-                />
+              Registrasi
+
+            </h1>
+
+            <div className="mt-8 grid gap-5">
+
+              <Input
+                icon={
+                  <User />
+                }
+                placeholder="Username"
+                value={
+                  form.username
+                }
+                onChange={(
+                  v
+                ) =>
+                  update(
+                    "username",
+                    v
+                  )
+                }
+              />
+
+              <Input
+                icon={
+                  <User />
+                }
+                placeholder="Nama"
+                value={
+                  form.nama
+                }
+                onChange={(
+                  v
+                ) =>
+                  update(
+                    "nama",
+                    v
+                  )
+                }
+              />
+
+              <Input
+                icon={
+                  <CreditCard />
+                }
+                placeholder="NIK"
+                value={
+                  form.nik
+                }
+                onChange={(
+                  v
+                ) =>
+                  update(
+                    "nik",
+                    v
+                  )
+                }
+              />
+
+              <Input
+                icon={
+                  <MapPin />
+                }
+                placeholder="Alamat"
+                value={
+                  form.alamat
+                }
+                onChange={(
+                  v
+                ) =>
+                  update(
+                    "alamat",
+                    v
+                  )
+                }
+              />
+
+              <Input
+                icon={
+                  <Phone />
+                }
+                placeholder="No Telepon"
+                value={
+                  form.telp
+                }
+                onChange={(
+                  v
+                ) =>
+                  update(
+                    "telp",
+                    v
+                  )
+                }
+              />
+
+              <div className="relative">
+
+                <Lock className="absolute left-4 top-4 text-zinc-500" />
 
                 <input
-                  type="text"
-                  placeholder="Masukkan username Anda"
-                  className="h-14 w-full rounded-2xl border border-white/5 bg-zinc-950/60 pl-12 pr-4 text-sm font-semibold text-white outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-zinc-600"
+                  required
+                  minLength={6}
+                  type={
+                    showPassword
+                      ? "text"
+                      : "password"
+                  }
+                  value={
+                    form.password
+                  }
+                  onChange={(
+                    e
+                  ) =>
+                    update(
+                      "password",
+                      e
+                        .target
+                        .value
+                    )
+                  }
+                  placeholder="Password"
+                  className="h-14 w-full rounded-2xl bg-[#030712] pl-14 pr-14"
                 />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setShowPassword(
+                      !showPassword
+                    )
+                  }
+                  className="absolute right-4 top-4"
+                >
+                  {showPassword ? (
+                    <EyeOff />
+                  ) : (
+                    <Eye />
+                  )}
+                </button>
+
               </div>
+
             </div>
 
-            {/* Password Field */}
-            <div className="mb-8">
-              <label className="mb-2.5 block text-xs font-bold uppercase tracking-wider text-zinc-400">
-                Password
-              </label>
+            {error && (
 
-              <div className="relative group">
-                <Lock
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-blue-400 transition-colors"
-                />
+              <div className="mt-6 rounded-xl bg-red-500/10 p-4 text-red-300">
 
-                <input
-                  type="password"
-                  placeholder="Minimal 8 karakter"
-                  className="h-14 w-full rounded-2xl border border-white/5 bg-zinc-950/60 pl-12 pr-12 text-sm font-semibold text-white outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all placeholder:text-zinc-600"
-                />
+                {error}
 
-                <Eye
-                  size={18}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 cursor-pointer hover:text-white transition-colors"
-                />
               </div>
-            </div>
 
-            {/* Premium Submit Button */}
-            <button className="relative w-full h-14 group overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 text-sm font-bold tracking-wide shadow-lg shadow-blue-600/20 transition-all duration-300 hover:scale-[1.01] hover:shadow-blue-600/30">
-              <span className="relative z-10">Daftar Akun</span>
-              <div className="absolute inset-0 -translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-indigo-600 to-blue-600 transition-transform duration-300 ease-out" />
-            </button>
-          </div>
+            )}
 
-          <p className="mt-8 text-center text-sm text-zinc-400">
-            Sudah memiliki akun?{" "}
-            <Link
-              href="/login"
-              className="font-bold text-blue-400 hover:text-blue-300 transition-colors underline underline-offset-4"
+            <button
+              disabled={
+                loading
+              }
+              className="mt-8 h-14 w-full rounded-2xl bg-blue-600 font-bold"
             >
-              Masuk Sekarang
-            </Link>
-          </p>
+
+              {loading
+                ? "Memproses..."
+                : "Daftar"}
+
+            </button>
+
+          </form>
+
         </div>
+
       </div>
+
+    </div>
+  );
+}
+
+function Input({
+  icon,
+  value,
+  placeholder,
+  onChange,
+}: any) {
+  return (
+    <div className="relative">
+
+      <div className="absolute left-4 top-4 text-zinc-500">
+
+        {icon}
+
+      </div>
+
+      <input
+        required
+        value={value}
+        onChange={(e) =>
+          onChange(
+            e.target.value
+          )
+        }
+        placeholder={placeholder}
+        className="h-14 w-full rounded-2xl bg-[#030712] pl-14 pr-5"
+      />
+
     </div>
   );
 }

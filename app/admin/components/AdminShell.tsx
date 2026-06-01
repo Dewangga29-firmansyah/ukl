@@ -27,7 +27,7 @@ const menuItems = [
   },
   {
     label: "Gerbong & Kursi",
-    href: "/admin/users",
+    href: "/admin/gerbong",
     icon: Armchair,
   },
   {
@@ -44,11 +44,6 @@ const menuItems = [
     label: "Pemesanan",
     href: "/admin/pembelian",
     icon: Ticket,
-  },
-  {
-    label: "Scan Tiket",
-    href: "/admin/payment",
-    icon: ScanLine,
   },
 ];
 
@@ -73,7 +68,7 @@ export default function AdminShell({
             <Train className="h-8 w-8 text-[#12c9e8]" strokeWidth={2.3} />
             <div>
               <h1 className="text-2xl font-extrabold leading-7 text-white">
-                RailTicket
+                RailNusantara
               </h1>
               <p className="mt-1 text-base text-[#93a7c2]">Admin Panel</p>
             </div>

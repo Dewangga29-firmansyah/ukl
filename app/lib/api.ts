@@ -45,8 +45,16 @@ export type ApiKereta = {
 }
 
 export type ApiJadwal = {
-  id: string
-  harga?: number
+ id:string
+ asal:string
+ tujuan:string
+ tanggalBerangkat:string
+ tanggalTiba:string
+ harga:number
+
+ kereta?:{
+   nama:string
+ }
 }
 
 export type ApiPelanggan = {
@@ -55,8 +63,19 @@ export type ApiPelanggan = {
 }
 
 export type ApiPembelian = {
-  id: string
-  total?: number
+ id:string
+ kode?:string
+ kodePembelian?:string
+ total?:number
+ totalBayar?:number
+ status?:string
+
+ pelanggan?:{
+   nama?:string
+   user?:{
+    username:string
+   }
+ }
 }
 
 export class ApiError extends Error {
@@ -207,14 +226,41 @@ export function getAuthUser() {
     return null
   }
 
-  const user =
-    localStorage.getItem(
+  try {
+    const raw =
+      localStorage.getItem(
+        'railticket_user'
+      )
+
+    if (
+      !raw ||
+      raw ===
+        'undefined' ||
+      raw ===
+        'null'
+    ) {
+      return null
+    }
+
+    return JSON.parse(
+      raw
+    )
+
+  } catch (
+    error
+  ) {
+
+    console.error(
+      'Invalid user session'
+    )
+
+    localStorage.removeItem(
       'railticket_user'
     )
 
-  return user
-    ? JSON.parse(user)
-    : null
+    return null
+
+  }
 }
 
 export function clearAuthSession() {
