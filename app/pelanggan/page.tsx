@@ -74,7 +74,7 @@ export default function PelangganPage() {
               </p>
 
               <Link
-                href="/jadwal"
+                href="/pelanggan/cari-tiket"
                 className="
                 mt-8
                 inline-flex
@@ -161,24 +161,18 @@ export default function PelangganPage() {
 
           </h2>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2">
 
             <QuickCard
-              href="/jadwal"
+              href="/pelanggan/cari-tiket"
               title="Cari Jadwal"
               desc="Cari kereta dan pesan tiket"
             />
 
             <QuickCard
-              href="/pembelian"
+              href="/pelanggan/tiket"
               title="Tiket Saya"
               desc="Lihat seluruh tiket"
-            />
-
-            <QuickCard
-              href="/profil"
-              title="Profil"
-              desc="Kelola akun pelanggan"
             />
 
           </div>
