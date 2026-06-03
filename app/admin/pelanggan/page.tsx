@@ -30,7 +30,7 @@ export default function AdminPelangganPage() {
           setError(null);
         }
       } catch (err) {
-        if (err instanceof ApiError && err.status === 401) {
+        if ((err instanceof ApiError && err.status === 401) || (err && typeof err === 'object' && 'status' in err && (err as any).status === 401)) {
           clearAuthSession();
           router.push("/login");
           return;

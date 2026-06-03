@@ -61,7 +61,7 @@ export default function AdminDashboard() {
 
       const allResults = [keretaResult, jadwalResult, pelangganResult, pembelianResult];
       const hasUnauthorized = allResults.some(
-        (r) => r.status === "rejected" && r.reason instanceof ApiError && r.reason.status === 401
+        (r) => r.status === "rejected" && ((r.reason instanceof ApiError && r.reason.status === 401) || (r.reason && typeof r.reason === 'object' && 'status' in r.reason && (r.reason as any).status === 401))
       );
       if (hasUnauthorized) {
         clearAuthSession();
