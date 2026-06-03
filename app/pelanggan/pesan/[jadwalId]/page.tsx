@@ -63,7 +63,11 @@ export default function Page() {
 
   async function load() {
     try {
+      const token = getAuthToken()
       const res = await fetch(`${API_URL}/jadwal/${jadwalId}`, {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         cache: 'no-store',
       })
       const data = await res.json()
