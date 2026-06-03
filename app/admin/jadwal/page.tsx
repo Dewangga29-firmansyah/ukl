@@ -59,23 +59,33 @@ export default function Page() {
       setLoading(true)
 
       const [jadwalRes, keretaRes] =
-        await Promise.all([
+        await Promise.allSettled([
           getJadwal(),
           getKereta(),
         ])
 
       const jadwal =
-        Array.isArray(jadwalRes)
-          ? jadwalRes
+        jadwalRes.status === 'fulfilled' && Array.isArray(jadwalRes.value)
+          ? jadwalRes.value
           : []
 
       const kereta =
-        Array.isArray(keretaRes)
-          ? keretaRes
+        keretaRes.status === 'fulfilled' && Array.isArray(keretaRes.value)
+          ? keretaRes.value
           : []
 
       setData(jadwal)
       setTrains(kereta)
+      
+      const hasUnauthorized = 
+        (jadwalRes.status === 'rejected' && ((jadwalRes.reason instanceof ApiError && jadwalRes.reason.status === 401) || (jadwalRes.reason && typeof jadwalRes.reason === 'object' && 'status' in jadwalRes.reason && (jadwalRes.reason as any).status === 401))) ||
+        (keretaRes.status === 'rejected' && ((keretaRes.reason instanceof ApiError && keretaRes.reason.status === 401) || (keretaRes.reason && typeof keretaRes.reason === 'object' && 'status' in keretaRes.reason && (keretaRes.reason as any).status === 401)))
+        
+      if (hasUnauthorized) {
+        clearAuthSession()
+        router.push('/login')
+        return
+      }
 
       if (
         kereta.length &&
@@ -89,13 +99,7 @@ export default function Page() {
         }))
       }
     } catch (err) {
-      if ((err instanceof ApiError && err.status === 401) || (err && typeof err === 'object' && 'status' in err && (err as any).status === 401)) {
-        clearAuthSession()
-        router.push('/login')
-        return
-      }
       console.error(err)
-
       setData([])
       setTrains([])
     } finally {
