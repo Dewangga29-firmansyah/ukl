@@ -72,6 +72,10 @@ export default function Page() {
       })
       const data = await res.json()
 
+      if (!res.ok) {
+        throw new Error(data.message || 'Gagal memuat detail jadwal')
+      }
+
       setJadwal({
         ...data,
         kereta: {
@@ -83,8 +87,9 @@ export default function Page() {
       setActiveGerbong(
         data?.kereta?.gerbong?.[0]?.id || ''
       )
-    } catch {
-      alert('Gagal memuat jadwal rute perjalanan')
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Gagal memuat jadwal rute perjalanan')
+      router.push('/pelanggan/cari-tiket')
     } finally {
       setLoading(false)
     }
