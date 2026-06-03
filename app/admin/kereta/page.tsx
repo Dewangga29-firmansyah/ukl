@@ -1,17 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, Train, X, Loader2, Info } from 'lucide-react'
 
 import AdminShell from '../components/AdminShell'
 
 import {
   ApiKereta,
+  ApiError,
   createKereta,
   getKereta,
+  clearAuthSession,
 } from '../../lib/api'
 
 export default function AdminKeretaPage() {
+  const router = useRouter()
   const [trains, setTrains] = useState<ApiKereta[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -26,6 +30,11 @@ export default function AdminKeretaPage() {
       setTrains(data)
       setError('')
     } catch (err) {
+      if ((err instanceof ApiError && err.status === 401) || (err && typeof err === 'object' && 'status' in err && err.status === 401)) {
+        clearAuthSession()
+        router.push('/login')
+        return
+      }
       setError(
         err instanceof Error ? err.message : 'Gagal memuat data'
       )

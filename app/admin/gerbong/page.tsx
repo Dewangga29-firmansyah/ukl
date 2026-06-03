@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import {
   Armchair,
@@ -16,6 +17,8 @@ import AdminShell from '../components/AdminShell'
 
 import {
   API_URL,
+  ApiError,
+  clearAuthSession,
   getAuthToken,
   getKereta,
 } from '../../lib/api'
@@ -52,6 +55,7 @@ type GerbongCard = {
 }
 
 export default function Page() {
+  const router = useRouter()
   const [mounted, setMounted] =
     useState(false)
 
@@ -165,6 +169,11 @@ export default function Page() {
     } catch (
       err
     ) {
+      if (err instanceof ApiError && err.status === 401) {
+        clearAuthSession()
+        router.push('/login')
+        return
+      }
       console.error(
         err,
       )

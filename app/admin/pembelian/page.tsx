@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useRouter } from 'next/navigation'
 
 import {
   Check,
@@ -15,7 +16,9 @@ import AdminShell from '../components/AdminShell'
 
 import {
   API_URL,
+  ApiError,
   ApiPembelian,
+  clearAuthSession,
   formatRupiah,
   getAuthToken,
   getPembelian,
@@ -45,6 +48,7 @@ function passenger(
 }
 
 export default function Page() {
+  const router = useRouter()
   const [loading, setLoading] =
     useState(true)
 
@@ -88,6 +92,11 @@ export default function Page() {
     } catch (
       err
     ) {
+      if (err instanceof ApiError && err.status === 401) {
+        clearAuthSession()
+        router.push('/login')
+        return
+      }
       setError(
         err instanceof
           Error

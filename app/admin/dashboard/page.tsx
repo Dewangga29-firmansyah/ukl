@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CalendarDays, Ticket, Train, Users } from "lucide-react";
 import AdminShell from "../components/AdminShell";
 import {
+  ApiError,
   ApiPembelian,
+  clearAuthSession,
   formatRupiah,
   getAuthToken,
   getJadwal,
@@ -32,6 +35,7 @@ function getPembelianTotal(order: ApiPembelian) {
 }
 
 export default function AdminDashboard() {
+  const router = useRouter();
   const [stats, setStats] = useState(defaultStats);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
@@ -52,6 +56,16 @@ export default function AdminDashboard() {
         ]);
 
       if (!mounted) {
+        return;
+      }
+
+      const allResults = [keretaResult, jadwalResult, pelangganResult, pembelianResult];
+      const hasUnauthorized = allResults.some(
+        (r) => r.status === "rejected" && r.reason instanceof ApiError && r.reason.status === 401
+      );
+      if (hasUnauthorized) {
+        clearAuthSession();
+        router.push("/login");
         return;
       }
 

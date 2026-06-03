@@ -1,15 +1,13 @@
-const DEFAULT_API_URL =
-  'https://trainsystem-production.up.railway.app'
+const DEFAULT_API_URL = 'http://localhost:3001'
 
-export const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(
-    /\/$/,
-    ''
-  ) || DEFAULT_API_URL
+// Ganti cara manggil API_URL agar Next.js memprosesnya saat build time
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL).replace(/\/$/, '')
+
 
 type RequestOptions =
   RequestInit & {
     token?: string | null
+    skipAuth?: boolean
   }
 
 export type LoginPayload = {
@@ -89,9 +87,10 @@ export class ApiError extends Error {
     detail: unknown
   ) {
     super(message)
-
+    this.name = 'ApiError'
     this.status = status
     this.detail = detail
+    Object.setPrototypeOf(this, ApiError.prototype)
   }
 }
 
@@ -101,9 +100,19 @@ async function apiRequest<T>(
 ) {
   const {
     token,
+    skipAuth,
     headers,
     ...init
   } = options
+
+  // Automatically get token: use explicit token if provided,
+  // otherwise auto-retrieve from localStorage
+  const authToken =
+    token !== undefined
+      ? token
+      : skipAuth
+        ? null
+        : getAuthToken()
 
   const res = await fetch(
     `${API_URL}${path}`,
@@ -116,10 +125,10 @@ async function apiRequest<T>(
         'Content-Type':
           'application/json',
 
-        ...(token
+        ...(authToken
           ? {
               Authorization:
-                `Bearer ${token}`,
+                `Bearer ${authToken}`,
             }
           : {}),
 
@@ -155,6 +164,7 @@ export function login(
     '/auth/login',
     {
       method: 'POST',
+      skipAuth: true,
       body:
         JSON.stringify(
           payload
@@ -198,12 +208,30 @@ export function saveAuthSession(
     token
   )
 
-  localStorage.setItem(
-    'railticket_user',
-    JSON.stringify(
-      user
+  // If backend doesn't return user object, extract from JWT
+  if (user) {
+    localStorage.setItem(
+      'railticket_user',
+      JSON.stringify(user)
     )
-  )
+  } else {
+    try {
+      const payload = JSON.parse(
+        atob(token.split('.')[1])
+      )
+      const extractedUser = {
+        id: payload.sub,
+        username: payload.username,
+        role: payload.role,
+      }
+      localStorage.setItem(
+        'railticket_user',
+        JSON.stringify(extractedUser)
+      )
+    } catch {
+      // Ignore parse errors
+    }
+  }
 }
 
 export function getAuthToken() {
@@ -289,7 +317,6 @@ export function createKereta(
     '/kereta',
     {
       method: 'POST',
-      token: getAuthToken(),
       body: JSON.stringify(data),
     }
   )

@@ -155,7 +155,7 @@ export default function LoginPage() {
       <div className="flex flex-1 items-center justify-center px-8">
         <div className="w-full max-w-xl">
           <Link
-            href="/dashboard"
+            href="/"
             className="mb-10 inline-flex items-center gap-3 text-gray-400 hover:text-cyan-400"
           >
             Kembali
@@ -202,7 +202,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-8 h-16 w-full rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-xl font-bold text-black transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-8 h-16 w-full rounded-2xl bg-linear-to-r from-cyan-500 to-blue-600 text-xl font-bold text-black transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Memproses..." : "Masuk"}
             </button>

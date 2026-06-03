@@ -103,10 +103,10 @@ export default function RegisterPage() {
               'POST',
 
             headers:
-              {
-                'Content-Type':
-                  'application/json',
-              },
+            {
+              'Content-Type':
+                'application/json',
+            },
 
             body:
               JSON.stringify(
@@ -131,8 +131,8 @@ export default function RegisterPage() {
             data.message,
           )
             ? data.message.join(
-                '\n',
-              )
+              '\n',
+            )
             : data.message,
         )
       }
@@ -144,7 +144,7 @@ export default function RegisterPage() {
       window.location.href =
         '/login'
     } catch (
-      err
+    err
     ) {
       setError(
         err instanceof

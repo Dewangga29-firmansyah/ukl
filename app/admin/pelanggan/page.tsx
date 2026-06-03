@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import AdminShell from "../components/AdminShell";
-import { ApiPelanggan, getAuthToken, getPelanggan } from "../../lib/api";
+import { ApiError, ApiPelanggan, clearAuthSession, getAuthToken, getPelanggan } from "../../lib/api";
 
 export default function AdminPelangganPage() {
+  const router = useRouter();
   const [passengers, setPassengers] = useState<ApiPelanggan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +30,11 @@ export default function AdminPelangganPage() {
           setError(null);
         }
       } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          clearAuthSession();
+          router.push("/login");
+          return;
+        }
         if (mounted) {
           setError(
             err instanceof Error

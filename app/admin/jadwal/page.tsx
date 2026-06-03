@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   Pencil,
   Plus,
@@ -16,8 +17,10 @@ import {
 import AdminShell from '../components/AdminShell'
 import {
   API_URL,
+  ApiError,
   ApiJadwal,
   ApiKereta,
+  clearAuthSession,
   formatRupiah,
   getAuthToken,
   getJadwal,
@@ -43,6 +46,7 @@ const empty: Form = {
 }
 
 export default function Page() {
+  const router = useRouter()
   const [data, setData] = useState<ApiJadwal[]>([])
   const [trains, setTrains] = useState<ApiKereta[]>([])
   const [loading, setLoading] = useState(true)
@@ -85,6 +89,11 @@ export default function Page() {
         }))
       }
     } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        clearAuthSession()
+        router.push('/login')
+        return
+      }
       console.error(err)
 
       setData([])
