@@ -88,7 +88,7 @@ export default function Page({
 
       const res =
         await fetch(
-          `${API_URL}/pembelian/${id}`,
+          `${API_URL}/pembelian/mine/${id}`,
           {
             headers: {
               Authorization:
