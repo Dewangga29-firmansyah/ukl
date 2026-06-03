@@ -20,6 +20,7 @@ import {
   CreditCard,
   Loader2,
   Train,
+  CheckCircle2,
 } from 'lucide-react'
 
 import {
@@ -71,6 +72,12 @@ function Content() {
   const [
     paying,
     setPaying,
+  ] =
+    useState(false)
+
+  const [
+    showReceipt,
+    setShowReceipt,
   ] =
     useState(false)
 
@@ -175,9 +182,8 @@ function Content() {
         throw new Error()
       }
 
-      router.push(
-        `/pelanggan/tiket/${id}`
-      )
+      setData((prev) => prev ? { ...prev, status: 'PAID' } : prev)
+      setShowReceipt(true)
     } finally {
       setPaying(
         false
@@ -408,8 +414,38 @@ function Content() {
           </div>
 
         </div>
-
       </div>
+
+      {showReceipt && data && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-[32px] bg-[#121b2d] border border-green-500/30 p-8 shadow-2xl text-center relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-400 to-cyan-400"></div>
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-500/20 mb-6">
+              <CheckCircle2 className="h-12 w-12 text-green-400" />
+            </div>
+            <h2 className="text-3xl font-black text-white mb-2">Pembayaran Berhasil!</h2>
+            <p className="text-slate-400 mb-8">Terima kasih, transaksi kamu sukses.</p>
+            
+            <div className="rounded-3xl bg-[#09111f] p-6 mb-8 text-left border border-white/5">
+              <div className="flex justify-between mb-4 border-b border-white/5 pb-4">
+                <span className="text-slate-400">Kode Booking</span>
+                <span className="font-bold text-white tracking-wider">{data.kodeBooking}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Total Dibayar</span>
+                <span className="font-bold text-cyan-400 text-lg">Rp {(data.total ?? 0).toLocaleString('id-ID')}</span>
+              </div>
+            </div>
+
+            <Link
+              href={`/pelanggan/tiket/${data.id}`}
+              className="flex h-14 w-full items-center justify-center rounded-2xl bg-cyan-400 font-black text-black hover:bg-cyan-300 transition-colors shadow-[0_0_20px_rgba(34,211,238,0.3)]"
+            >
+              Lihat E-Ticket Sekarang
+            </Link>
+          </div>
+        </div>
+      )}
 
     </div>
   )
