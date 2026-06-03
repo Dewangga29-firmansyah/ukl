@@ -14,6 +14,7 @@ import {
 
 import {
   API_URL,
+  getAuthToken,
 } from '../../lib/api'
 
 interface Jadwal {
@@ -93,10 +94,14 @@ export default function CariTiketPage() {
           ? `${API_URL}/jadwal/search?${params}`
           : `${API_URL}/jadwal`
 
+      const token = getAuthToken()
       const res =
         await fetch(
           url,
           {
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {})
+            },
             cache:
               'no-store',
           }
