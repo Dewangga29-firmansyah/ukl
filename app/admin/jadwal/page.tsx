@@ -107,6 +107,10 @@ export default function Page() {
     }
   }
 
+  useEffect(() => {
+    load()
+  }, [])
+
   async function remove(id: string) {
     if (!confirm('Hapus jadwal?')) {
       return
@@ -407,12 +411,17 @@ export default function Page() {
                   onChange={(e) => setForm({ ...form, keretaId: e.target.value })}
                   className="w-full h-11 rounded-xl border border-slate-800 bg-[#121b2d] px-4 text-sm text-white transition focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                 >
-                  {(trains ?? []).map(
-                    (k) => (
+                  {(!trains || trains.length === 0) ? (
+                    <option value="" disabled>
+                      Belum ada data armada kereta
+                    </option>
+                  ) : (
+                    trains.map((k) => (
                       <option key={k.id} value={k.id}>
                         {k.nama ?? '-'}
                       </option>
-                    ))}
+                    ))
+                  )}
                 </select>
               </div>
 
