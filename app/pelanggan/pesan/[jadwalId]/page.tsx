@@ -61,12 +61,6 @@ export default function Page() {
   const [activeGerbong, setActiveGerbong] = useState('')
   const [penumpangList, setPenumpangList] = useState<PenumpangInput[]>([])
 
-  useEffect(() => {
-    if (jadwalId) {
-      load()
-    }
-  }, [jadwalId])
-
   async function load() {
     try {
       setLoading(true)
@@ -92,6 +86,12 @@ export default function Page() {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (jadwalId) {
+      load()
+    }
+  }, [jadwalId])
 
   function selectKursi(id: string, label: string) {
     setPenumpangList((prev) => {

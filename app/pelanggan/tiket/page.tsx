@@ -43,10 +43,6 @@ export default function Page() {
   const [tiket, setTiket] =
     useState<Tiket[]>([])
 
-  useEffect(() => {
-    load()
-  }, [])
-
   async function load() {
     try {
       setLoading(true)
@@ -117,6 +113,10 @@ export default function Page() {
       )
     }
   }
+
+  useEffect(() => {
+    load()
+  }, [])
 
   function badge(
     status?: string,

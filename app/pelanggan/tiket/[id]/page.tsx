@@ -81,10 +81,6 @@ export default function Page({
   ] =
     useState(true)
 
-  useEffect(() => {
-    load()
-  }, [])
-
   async function load() {
     try {
       const token =
@@ -111,6 +107,10 @@ export default function Page({
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    load()
+  }, [])
 
   async function downloadTicket() {
     try {
