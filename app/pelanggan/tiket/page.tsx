@@ -43,72 +43,58 @@ export default function Page() {
   const [tiket, setTiket] =
     useState<Tiket[]>([])
 
+  const [errorMsg, setErrorMsg] = useState('')
+
   async function load() {
     try {
-      const token =
-        getAuthToken()
+      const token = getAuthToken()
 
       if (!token) {
         setTiket([])
         return
       }
 
-      const res =
-        await fetch(
-          `${API_URL}/pembelian/mine`,
-          {
-            method: 'GET',
+      const res = await fetch(`${API_URL}/pembelian/mine`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Cache-Control': 'no-cache',
+        },
+        cache: 'no-store',
+      })
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-
-              'Cache-Control':
-                'no-cache',
-            },
-
-            cache:
-              'no-store',
-          },
-        )
+      const text = await res.text()
 
       if (!res.ok) {
+        setErrorMsg(`API Error: ${res.status} - ${text}`)
         setTiket([])
         return
       }
 
-      const json =
-        await res.json()
-
-      console.log(
-        'TIKET USER:',
-        json,
-      )
-
-      if (
-        !Array.isArray(
-          json,
-        )
-      ) {
+      let json
+      try {
+        json = JSON.parse(text)
+      } catch (e) {
+        setErrorMsg('Invalid JSON from server')
         setTiket([])
         return
       }
 
-      setTiket(
-        json,
-      )
-    } catch (
-      err
-    ) {
-      console.error(
-        err,
-      )
+      console.log('TIKET USER:', json)
 
+      if (!Array.isArray(json)) {
+        setErrorMsg('Format data salah (bukan array)')
+        setTiket([])
+        return
+      }
+
+      setTiket(json)
+    } catch (err) {
+      console.error(err)
+      setErrorMsg(err instanceof Error ? err.message : 'Unknown error')
       setTiket([])
     } finally {
-      setLoading(
-        false,
-      )
+      setLoading(false)
     }
   }
 
@@ -161,11 +147,11 @@ export default function Page() {
         />
 
         <h1 className="mt-6 text-3xl font-black text-white">
-          Belum Ada Tiket
+          {errorMsg ? 'Terjadi Kesalahan' : 'Belum Ada Tiket'}
         </h1>
 
         <p className="mt-2 text-slate-500">
-          Anda belum melakukan transaksi
+          {errorMsg ? errorMsg : 'Anda belum melakukan transaksi'}
         </p>
 
         <Link
