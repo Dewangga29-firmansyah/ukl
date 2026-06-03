@@ -265,7 +265,7 @@ export default function Page() {
                 <span className="h-3 w-3 rounded bg-cyan-400 block" /> Terpilih
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded bg-red-500/20 border border-red-500/30 block" /> Terisi (Locked)
+                <span className="h-3 w-3 rounded bg-slate-800 border border-slate-700 block opacity-50" /> Terisi (Locked)
               </div>
             </div>
 
@@ -287,7 +287,7 @@ export default function Page() {
                     onClick={() => selectKursi(seat.id, seat.label)}
                     className={`h-12 flex items-center justify-center gap-1 rounded-xl text-xs font-bold border tracking-wide transition duration-150 ${
                       isOccupied
-                        ? 'bg-red-500/20 text-red-400/40 border-red-500/30 cursor-not-allowed line-through'
+                        ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed opacity-50'
                         : active
                         ? 'bg-cyan-400 text-slate-950 border-cyan-400 shadow-md shadow-cyan-400/10'
                         : 'bg-[#0f172a] text-slate-100 border-slate-800/80 hover:border-slate-700 hover:bg-[#121b2d]'

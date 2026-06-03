@@ -11,6 +11,8 @@ import {
   useSearchParams,
 } from 'next/navigation'
 
+import Link from 'next/link'
+
 import QRCode from 'react-qr-code'
 
 import {
@@ -248,32 +250,27 @@ function Content() {
           </div>
 
           <div className="mt-8 rounded-3xl bg-[#09111f] p-8">
-
+            <div className="text-center mb-6">
+              <h3 className="text-xl font-bold text-white mb-2">Scan QRIS untuk Membayar</h3>
+              <p className="text-sm text-slate-400">Gunakan BCA, GoPay, OVO, Dana, atau lainnya</p>
+            </div>
             <div className="flex justify-center">
-
               <div className="rounded-3xl bg-white p-6">
-
                 <QRCode
                   size={240}
                   value={
                     data.kodeBooking
                   }
                 />
-
               </div>
-
             </div>
-
             <div className="mt-6 text-center">
-
               <div className="text-3xl font-black text-cyan-400">
                 {
                   data.kodeBooking
                 }
               </div>
-
             </div>
-
           </div>
 
         </div>
@@ -362,7 +359,7 @@ function Content() {
             </div>
 
             {data.status ===
-              'PENDING' && (
+              'PENDING' ? (
 
               <button
                 onClick={
@@ -385,6 +382,26 @@ function Content() {
                   ? 'Memproses...'
                   : 'Bayar Sekarang'}
               </button>
+
+            ) : (
+
+              <Link
+                href={`/pelanggan/tiket/${data.id}`}
+                className="
+                mt-8
+                flex
+                h-14
+                w-full
+                items-center
+                justify-center
+                rounded-2xl
+                bg-green-500
+                font-black
+                text-white
+              "
+              >
+                Lihat E-Ticket
+              </Link>
 
             )}
 
