@@ -58,7 +58,6 @@ export default function Page() {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
-          'Cache-Control': 'no-cache',
         },
         cache: 'no-store',
       })
