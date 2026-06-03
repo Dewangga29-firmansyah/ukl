@@ -45,8 +45,6 @@ export default function Page() {
 
   async function load() {
     try {
-      setLoading(true)
-
       const token =
         getAuthToken()
 

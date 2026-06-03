@@ -63,7 +63,6 @@ export default function Page() {
 
   async function load() {
     try {
-      setLoading(true)
       const res = await fetch(`${API_URL}/jadwal/${jadwalId}`, {
         cache: 'no-store',
       })
